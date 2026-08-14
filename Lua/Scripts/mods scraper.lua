@@ -26,7 +26,7 @@ local function find_mods()
     end
     if DEBUG then
         print("[Stonemachia Mod Menu] Printing found mods...")
-        for _, mod in ipairs(mods_array) do print("[Stonemachia Mod Menu] Found mod: " .. mod) end
+        for _, mod in ipairs(mods_array) do print("[Stonemachia Mod Menu] Found mod: " .. mod.name) end
     end
     handle:close()
     return mods_array
