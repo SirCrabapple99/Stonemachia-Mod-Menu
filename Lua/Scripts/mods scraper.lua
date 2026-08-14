@@ -3,6 +3,11 @@ local DEBUG = false
 local function find_mods()
     local mods_array = {}
     local handle = io.popen("dir" .. "..\\Win64\\ue4ss\\Mods" .. "/b")
+    if not handle then
+        print("[Stonemachia Mod Menu] Failed scraping Mods directory")
+        handle:close()
+        return mods_array
+    end
     if DEBUG then print("[Stonemachia Mod Menu] Scraping Mods directory...") end
     for file_or_folder in handle:lines() do
         if DEBUG then print("[Stonemachia Mod Menu] Found " .. file_or_folder .. " in Mods directory") end
@@ -22,6 +27,7 @@ local function find_mods()
         print("[Stonemachia Mod Menu] Printing found mods...")
         for _, mod in ipairs(mods_array) do print("[Stonemachia Mod Menu] Found mod: " .. mod) end
     end
+    handle:close()
     return mods_array
 end
 
