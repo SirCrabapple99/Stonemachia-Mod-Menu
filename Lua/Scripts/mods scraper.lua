@@ -21,6 +21,7 @@ local function find_mods()
                 path = "..\\Win64\\ue4ss\\Mods\\" .. file_or_folder
             }
             table.insert(mods_array, mod_info)
+            if enabledtxt then enabledtxt:close() end
         else file:close() end
     end
     if DEBUG then
