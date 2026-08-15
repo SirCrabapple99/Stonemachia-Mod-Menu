@@ -1,1 +1,0 @@
-- quick cli to verify functionality

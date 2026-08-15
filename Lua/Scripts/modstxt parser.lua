@@ -33,7 +33,7 @@ end
 --* Parameter mod_name: The name of the mod we want to enable/disable
 --* Parameter enabled: Whether to enable or disable the specified mod
 function modstxt_parser.toggle_mod(mod_name, enabled)
-    if enabled then RestartMod(mod_name) else UninstallMod(mod_name) end
+    --! BROKEN, AFTER UNINSTALLING IT WONT LET YOU RESTARTMOD if enabled then RestartMod(mod_name) else UninstallMod(mod_name) end
     local file = io.open(modstxt_path, "r")
     if not file then return end
     local lines = {}
@@ -84,6 +84,25 @@ function modstxt_parser.validate_mod_entries(scraped_mods)
         end
     end
     write_to_modstxt(lines)
+end
+
+--* Helper function that checks the status of a mod
+--* Parameter mod_name: The name of the mod we want to check
+function modstxt_parser.is_mod_enabled(mod_name)
+    local file = io.open(modstxt_path, "r")
+    if not file then return end
+    for line in file:lines() do
+        if #line > 0 then --? Ignore empty lines
+            local parsed_line = {}
+            for match in string.gmatch(line, "[^%s:%s]+") do table.insert(parsed_line, match) end
+            if parsed_line[1] == mod_name then 
+                file:close()
+                return parsed_line[2] == "1"
+            end
+        end
+    end
+    file:close()
+    return false
 end
 
 return modstxt_parser
