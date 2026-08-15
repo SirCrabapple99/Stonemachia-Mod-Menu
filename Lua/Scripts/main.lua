@@ -1,9 +1,8 @@
 local DEBUG = true
 
 local scraped_mods = require("mods scraper")
+local modstxt_parser = require("modstxt parser")
 
-for _, mod in ipairs(scraped_mods) do
-    print("Mod name: " .. mod.name)
-    print("Mod path: " .. mod.path)
-    print("Has enabled.txt: " .. string.format("%s", mod.has_enabledtxt))
-end
+--? Checks if there is a mod folder for each entry in mods.txt
+--? Checks if there is an entry for each folder in the Mods directory, and if not, we add the entry defaulting to disabled
+modstxt_parser.validate_mod_entries(scraped_mods)
