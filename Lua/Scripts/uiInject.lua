@@ -13,13 +13,16 @@ function uiInject.injectButtonVertical(ownerClassName, menuName, buttonName, ins
     -- find the selected button
     local templateInstance = nil
     for unused, widget in ipairs(all) do
+        -- if buttons found
         if widget:GetFName():ToString() == buttonName then
+            -- get outer
             local outer = widget:GetOuter()
             if outer then
+                -- get outer outer
                 local owner = outer:GetOuter()
+                -- proceed
                 if owner and owner:IsValid() and owner:GetClass():GetFName():ToString() == ownerClassName then
                     templateInstance = widget
-                    break
                 end
             end
         end
@@ -84,8 +87,18 @@ function uiInject.injectButtonVertical(ownerClassName, menuName, buttonName, ins
     for unused, widget in ipairs(children) do
         verticalBox:AddChildToVerticalBox(widget)
     end
-
+    
     return slot
 end
+
+RegisterKeyBind(Key.F9, function()
+    local slot = uiInject.injectButtonVertical("WBP_PauseMenùVoices_C", "WBP_MainMenùButton_C", "BSettings", 6)
+    slot:SetPadding({
+        Left = 0,
+        Top = 4,
+        Right = 0,
+        Bottom = 4
+    })
+end)
 
 return uiInject
