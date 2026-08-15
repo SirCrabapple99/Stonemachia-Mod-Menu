@@ -168,7 +168,7 @@ RegisterHook("/Game/Widget/PauseMenù/Pages/WBP_PauseMenùVoices.WBP_PauseMenùV
     local vbox = uButton:GetChildAt(0)
     local title = vbox:GetChildAt(0)
 
-    -- set text every time or it will revert to default
+    -- set text every time or it will revert to default. no idea why though
     title:SetText(FText("Mods"))
 end)
 
@@ -208,7 +208,7 @@ RegisterHook("/Game/Widget/MainMenù/Componenets/Pages/WBP_MainPage.WBP_MainPage
     local vbox = uButton:GetChildAt(0)
     local title = vbox:GetChildAt(0)
 
-    -- set text every time or it will revert to default
+    -- set text every time or it will revert to default. no idea why though
     title:SetText(FText("Mods"))
 end)
 
@@ -231,25 +231,24 @@ else
 
     if not clickFn then
         print("[ModMenu] [uiInject] [clickingStuff] OnRelease function could not be found\n")
-        return
+    else
+        -- find the full assetpath and then register a hook to it + the OnRelease function name (I know this is bad but it works)
+        local assetPath = buttonCls:GetFullName():match("%S+%s+(.+)")
+        RegisterHook(assetPath .. ":" .. clickFn, function(ctx)
+            local self = ctx:get()
+            if not self or not self:IsValid() then
+                return
+            end
+            if not myButtons[self:GetFullName()] then
+                return
+            end
+
+            -- function stuff goes here (probably just call a function to enable bp menu)
+            for i = 0, 10 do
+                print("[ModMenu] MODS BUTTON CLICKED YAY IT WORKS\n")
+            end
+        end)
     end
-
-    -- find the full assetpath and then register a hook to it + the OnRelease function name (I know this is bad but it works)
-    local assetPath = buttonCls:GetFullName():match("%S+%s+(.+)")
-    RegisterHook(assetPath .. ":" .. clickFn, function(ctx)
-        local self = ctx:get()
-        if not self or not self:IsValid() then
-            return
-        end
-        if not myButtons[self:GetFullName()] then
-            return
-        end
-
-        -- function stuff goes here (probably just call a function to enable bp menu)
-        for i = 0, 10 do
-            print("[ModMenu] MODS BUTTON CLICKED YAY IT WORKS\n")
-        end
-    end)
 end
 
 return uiInject
