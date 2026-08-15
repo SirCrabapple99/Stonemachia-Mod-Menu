@@ -1,0 +1,57 @@
+local DEBUG = false
+
+--? Collection of UE4SS system mods, in the for of a map with all set to true for cleaner code later
+local ue4ss_system_mods = {
+    ["KismetDebuggerMod"] = true,
+    ["EventViewerMod"] = true,
+    ["CheatManagerEnablerMod"] = true,
+    ["ActorDumperMod"] = true,
+    ["ConsoleCommandsMod"] = true,
+    ["ConsoleEnablerMod"] = true,
+    ["SplitScreenMod"] = true,
+    ["LineTraceMod"] = true,
+    ["BPML_GenericFunctions"] = true,
+    ["BPModLoaderMod"] = true,
+    ["jsbLuaProfilerMod"] = true,
+    ["shared"] = true,
+    ["Keybinds"] = true
+}
+
+--* Finds all the mod folders inside the Mods directory, will ignore files
+--* Returns an array of mods formatted as follows:
+--*    name: The name of the mod, e.g. "DisableCameraSmoothing"
+--*    has_enabledtxt: Whether the mod folder contains the enabled.txt file, e.g. false
+--*    path: The path to the mod, usable from within the scripts in this mod, e.g. "..\\Win64\\ue4ss\\Mods\\DisableCameraSmoothing"
+--*    system_mod: Whether the mod is a UE4SS system mod or a user mod
+local function find_mods()
+    local mods_array = {}
+    local handle = io.popen("dir" .. "..\\Win64\\ue4ss\\Mods" .. "/b")
+    if not handle then
+        if DEBUG then print("[Stonemachia Mod Menu] Failed scraping Mods directory") end
+        return mods_array
+    end
+    if DEBUG then print("[Stonemachia Mod Menu] Scraping Mods directory...") end
+    for file_or_folder in handle:lines() do
+        if DEBUG then print("[Stonemachia Mod Menu] Found " .. file_or_folder .. " in Mods directory") end
+        --? Is this a mod folder or a file in the Mods directory? We only want mod folders
+        local file, _ = io.open("..\\Win64\\ue4ss\\Mods\\" .. file_or_folder, "r")
+        local enabledtxt, _ = io.open("..\\Win64\\ue4ss\\Mods\\" .. file_or_folder .. "\\enabled.txt", "r")
+        if not file then
+            local mod_info = {
+                name = file_or_folder,
+                has_enabledtxt = not not enabledtxt,
+                path = "..\\Win64\\ue4ss\\Mods\\" .. file_or_folder,
+                system_mod = ue4ss_system_mods[file_or_folder]
+            }
+            table.insert(mods_array, mod_info)
+            if enabledtxt then enabledtxt:close() end
+        else file:close() end
+    end
+    if DEBUG then
+        print("[Stonemachia Mod Menu] Printing found mods...")
+        for _, mod in ipairs(mods_array) do print("[Stonemachia Mod Menu] Found mod: " .. mod.name) end
+    end
+    handle:close()
+    return mods_array
+end
+return find_mods()
