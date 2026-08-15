@@ -1,4 +1,1 @@
-- mods scraper to find what mods are in the ue4ss folder
-- mods.txt parser and writer
-- functions to enable disable and reload mods
 - quick cli to verify functionality

@@ -1,5 +1,10 @@
 local DEBUG = false
 
+--* Finds all the mod folders inside the Mods directory, will ignore files
+--* Returns an array of mods formatted as follows:
+--*    name: The name of the mod, e.g. "DisableCameraSmoothing"
+--*    has_enabledtxt: Whether the mod folder contains the enabled.txt file, e.g. false
+--*    path: The path to the mod, usable from within the scripts in this mod, e.g. "..\\Win64\\ue4ss\\Mods\\DisableCameraSmoothing"
 local function find_mods()
     local mods_array = {}
     local handle = io.popen("dir" .. "..\\Win64\\ue4ss\\Mods" .. "/b")
