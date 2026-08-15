@@ -2,7 +2,7 @@ local bpLib = StaticFindObject("/Script/UMG.Default__WidgetBlueprintLibrary")
 
 local uiInject = {}
 
-function uiInject.injectButtonVertical(menuName, buttonName)
+function uiInject.injectButtonVertical(ownerClassName, menuName, buttonName)
     -- find all the buttons in the menu chosen
     local all = FindAllOf(menuName)
     if not all then
@@ -14,10 +14,17 @@ function uiInject.injectButtonVertical(menuName, buttonName)
     local templateInstance = nil
     for _, widget in ipairs(all) do
         if widget:GetFName():ToString() == buttonName then
-            templateInstance = widget
-            break
+            local outer = widget:GetOuter()
+            if outer then
+                local owner = outer:GetOuter()
+                if owner and owner:IsValid() and owner:GetClass():GetFName():ToString() == ownerClassName then
+                    templateInstance = widget
+                    break
+                end
+            end
         end
     end
+
     if not templateInstance then
         print("[ModMenu] [uiInject] [injectButtonVertical] button with name of " .. buttonName .. " not found")
         return
