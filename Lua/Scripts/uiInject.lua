@@ -2,7 +2,7 @@ local bpLib = StaticFindObject("/Script/UMG.Default__WidgetBlueprintLibrary")
 
 local uiInject = {}
 
-function uiInject.injectButtonVertical(ownerClassName, menuName, buttonName)
+function uiInject.injectButtonVertical(ownerClassName, menuName, buttonName, insertIndex)
     -- find all the buttons in the menu chosen
     local all = FindAllOf(menuName)
     if not all then
@@ -12,7 +12,7 @@ function uiInject.injectButtonVertical(ownerClassName, menuName, buttonName)
 
     -- find the selected button
     local templateInstance = nil
-    for _, widget in ipairs(all) do
+    for unused, widget in ipairs(all) do
         if widget:GetFName():ToString() == buttonName then
             local outer = widget:GetOuter()
             if outer then
@@ -39,6 +39,7 @@ function uiInject.injectButtonVertical(ownerClassName, menuName, buttonName)
         print("[ModMenu] [uiInject] [injectButtonVertical] menu does not contain a VerticalBox")
         return
     end
+
     -- get the player controller
     local playerController = FindFirstOf("PlayerController")
     if not playerController or not playerController:IsValid() then
@@ -57,6 +58,31 @@ function uiInject.injectButtonVertical(ownerClassName, menuName, buttonName)
     if not slot then
         print("[ModMenu] [uiInject] [injectButtonVertical] unable inject new button into the menu")
         return
+    end
+
+    if not insertIndex then
+        -- just append at the end
+        return slot
+    end
+
+    -- save all children
+    local children = {}
+    local childCount = verticalBox:GetChildrenCount()
+
+    for i = 0, childCount - 1 do
+        children[#children + 1] = verticalBox:GetChildAt(i)
+    end
+    -- remove the new button from the end
+    table.remove(children)
+
+    -- insert it into the children index
+    table.insert(children, insertIndex, newButton)
+
+    -- remove all children from the vertical box
+    verticalBox:ClearChildren()
+    -- add all children back in the correct order
+    for unused, widget in ipairs(children) do
+        verticalBox:AddChildToVerticalBox(widget)
     end
 
     return slot
