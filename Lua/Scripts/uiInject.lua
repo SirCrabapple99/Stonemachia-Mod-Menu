@@ -122,7 +122,7 @@ local function registerHooks()
 
         if not button or not button:IsValid() then
             local slot
-            slot, button = uiInject.injectButtonVertical(menu, "BSettings", 8)
+            slot, button = uiInject.injectButtonVertical(menu, "BResume", 8)
             if not slot or not button then
                 print("[ModMenu] [uiInject] [pauseMenuHook] injection failed\n")
                 return
@@ -163,7 +163,7 @@ local function registerHooks()
 
         if not button or not button:IsValid() then
             local slot
-            slot, button = uiInject.injectButtonVertical(menu, "BSettings", 6)
+            slot, button = uiInject.injectButtonVertical(menu, "BResume", 4)
             if not slot or not button then
                 print("[ModMenu] [uiInject] [mainMenuHook] injection failed\n")
                 return
@@ -222,7 +222,7 @@ local function registerHooks()
                 end
 
                 -- function stuff goes here (probably just call a function to enable bp menu)
-                BP.Canvas_ToggleVisibility()
+                BP.ModMenu_ToggleVisibility()
             end)
         end
     end
