@@ -1,31 +1,8 @@
 local bpLib = StaticFindObject("/Script/UMG.Default__WidgetBlueprintLibrary")
 
+local BP = require("bpInterface")
+
 local uiInject = {}
-
--- dump widget tree
-local panelClass = StaticFindObject("/Script/UMG.PanelWidget")
-local userWidgetClass = StaticFindObject("/Script/UMG.UserWidget")
-
-local function dumpTree(widget, depth)
-    if not widget or not widget:IsValid() then
-        return
-    end
-    print(string.rep("  ", depth) .. widget:GetFName():ToString() .. "  [" .. widget:GetClass():GetFName():ToString() ..
-              "]\n")
-
-    -- walk walk walk
-    if widget:IsA(panelClass) then
-        for i = 0, widget:GetChildrenCount() - 1 do
-            dumpTree(widget:GetChildAt(i), depth + 1)
-        end
-        -- walk walk walk
-    elseif widget:IsA(userWidgetClass) then
-        local t = widget.WidgetTree
-        if t and t:IsValid() then
-            dumpTree(t.RootWidget, depth + 1)
-        end
-    end
-end
 
 function uiInject.injectButtonVertical(menu, buttonName, insertIndex)
     if not menu or not menu:IsValid() then
@@ -132,123 +109,131 @@ local injected = {}
 local myButtons = {}
 
 -- register hook on pause menu creation
-RegisterHook("/Game/Widget/PauseMenù/Pages/WBP_PauseMenùVoices.WBP_PauseMenùVoices_C:Construct", function(ctx)
-    local menu = ctx:get()
-    if not menu or not menu:IsValid() then
-        print("[ModMenu] [uiInject] [pauseMenuHook] menu returned nil")
-    end
-
-    -- guard against creating a second button
-    local id = menu:GetFullName()
-    local button = injected[id]
-
-    if not button or not button:IsValid() then
-        local slot
-        slot, button = uiInject.injectButtonVertical(menu, "BSettings", 8)
-        if not slot or not button then
-            print("[ModMenu] [uiInject] [pauseMenuHook] injection failed\n")
-            return
+local function registerHooks()
+    RegisterHook("/Game/Widget/PauseMenù/Pages/WBP_PauseMenùVoices.WBP_PauseMenùVoices_C:Construct", function(ctx)
+        local menu = ctx:get()
+        if not menu or not menu:IsValid() then
+            print("[ModMenu] [uiInject] [pauseMenuHook] menu returned nil")
         end
 
-        slot:SetPadding({
-            Left = 0,
-            Top = 4,
-            Right = 0,
-            Bottom = 4
-        })
+        -- guard against creating a second button
+        local id = menu:GetFullName()
+        local button = injected[id]
 
-        -- add button to injected and also to the list of buttons for clicking
-        injected[id] = button
-        myButtons[button:GetFullName()] = true
-    end
+        if not button or not button:IsValid() then
+            local slot
+            slot, button = uiInject.injectButtonVertical(menu, "BSettings", 8)
+            if not slot or not button then
+                print("[ModMenu] [uiInject] [pauseMenuHook] injection failed\n")
+                return
+            end
 
-    -- need to use GetChildAt for everything because the letter ù creates errors
-    local root = button.WidgetTree.RootWidget
-    local uButton = root:GetChildAt(0)
-    local vbox = uButton:GetChildAt(0)
-    local title = vbox:GetChildAt(0)
+            slot:SetPadding({
+                Left = 0,
+                Top = 4,
+                Right = 0,
+                Bottom = 4
+            })
 
-    -- set text every time or it will revert to default. no idea why though
-    title:SetText(FText("Mods"))
-end)
-
--- register hook on main menu creation
-RegisterHook("/Game/Widget/MainMenù/Componenets/Pages/WBP_MainPage.WBP_MainPage_C:Construct", function(ctx)
-    local menu = ctx:get()
-    if not menu or not menu:IsValid() then
-        print("[ModMenu] [uiInject] [mainMenuHook] menu returned nil")
-    end
-
-    -- guard against creating a second button
-    local id = menu:GetFullName()
-    local button = injected[id]
-
-    if not button or not button:IsValid() then
-        local slot
-        slot, button = uiInject.injectButtonVertical(menu, "BSettings", 6)
-        if not slot or not button then
-            print("[ModMenu] [uiInject] [mainMenuHook] injection failed\n")
-            return
+            -- add button to injected and also to the list of buttons for clicking
+            injected[id] = button
+            myButtons[button:GetFullName()] = true
         end
-        slot:SetPadding({
-            Left = 0,
-            Top = 4,
-            Right = 0,
-            Bottom = 4
-        })
 
-        -- add button to injected and also to the list of buttons for clicking
-        injected[id] = button
-        myButtons[button:GetFullName()] = true
-    end
+        -- need to use GetChildAt for everything because the letter ù creates errors
+        local root = button.WidgetTree.RootWidget
+        local uButton = root:GetChildAt(0)
+        local vbox = uButton:GetChildAt(0)
+        local title = vbox:GetChildAt(0)
 
-    -- need to use GetChildAt for everything because the letter ù creates errors
-    local root = button.WidgetTree.RootWidget
-    local uButton = root:GetChildAt(0)
-    local vbox = uButton:GetChildAt(0)
-    local title = vbox:GetChildAt(0)
-
-    -- set text every time or it will revert to default. no idea why though
-    title:SetText(FText("Mods"))
-end)
-
--- now for the clicking stuff
-
--- register the click hook once at load off the button class itself
-local buttonCls = StaticFindObject(
-    "/Game/Widget/MainMen\u{F9}/Componenets/Button/WBP_MainMen\u{F9}Button.WBP_MainMen\u{F9}Button_C")
-if not buttonCls or not buttonCls:IsValid() then
-    print("[ModMenu] [uiInject] button class not loaded, click hook not registered\n")
-else
-    -- the OnRelease function has to be found again because of the letter ù
-    local clickFn
-    buttonCls:ForEachFunction(function(fn)
-        local n = fn:GetFName():ToString()
-        if n:find("BndEvt", 1, true) and n:find("OnButtonReleasedEvent", 1, true) then
-            clickFn = n
-        end
+        -- set text every time or it will revert to default. no idea why though
+        title:SetText(FText("Mods"))
     end)
 
-    if not clickFn then
-        print("[ModMenu] [uiInject] [clickingStuff] OnRelease function could not be found\n")
-    else
-        -- find the full assetpath and then register a hook to it + the OnRelease function name (I know this is bad but it works)
-        local assetPath = buttonCls:GetFullName():match("%S+%s+(.+)")
-        RegisterHook(assetPath .. ":" .. clickFn, function(ctx)
-            local self = ctx:get()
-            if not self or not self:IsValid() then
-                return
-            end
-            if not myButtons[self:GetFullName()] then
-                return
-            end
+    -- register hook on main menu creation
+    RegisterHook("/Game/Widget/MainMenù/Componenets/Pages/WBP_MainPage.WBP_MainPage_C:Construct", function(ctx)
+        local menu = ctx:get()
+        if not menu or not menu:IsValid() then
+            print("[ModMenu] [uiInject] [mainMenuHook] menu returned nil")
+        end
 
-            -- function stuff goes here (probably just call a function to enable bp menu)
-            for i = 0, 10 do
-                print("[ModMenu] MODS BUTTON CLICKED YAY IT WORKS\n")
+        -- guard against creating a second button
+        local id = menu:GetFullName()
+        local button = injected[id]
+
+        if not button or not button:IsValid() then
+            local slot
+            slot, button = uiInject.injectButtonVertical(menu, "BSettings", 6)
+            if not slot or not button then
+                print("[ModMenu] [uiInject] [mainMenuHook] injection failed\n")
+                return
+            end
+            slot:SetPadding({
+                Left = 0,
+                Top = 4,
+                Right = 0,
+                Bottom = 4
+            })
+
+            -- add button to injected and also to the list of buttons for clicking
+            injected[id] = button
+            myButtons[button:GetFullName()] = true
+        end
+
+        -- need to use GetChildAt for everything because the letter ù creates errors
+        local root = button.WidgetTree.RootWidget
+        local uButton = root:GetChildAt(0)
+        local vbox = uButton:GetChildAt(0)
+        local title = vbox:GetChildAt(0)
+
+        -- set text every time or it will revert to default. no idea why though
+        title:SetText(FText("Mods"))
+    end)
+
+    -- now for the clicking stuff
+
+    -- register the click hook once at load off the button class itself
+    local buttonCls = StaticFindObject(
+        "/Game/Widget/MainMen\u{F9}/Componenets/Button/WBP_MainMen\u{F9}Button.WBP_MainMen\u{F9}Button_C")
+    if not buttonCls or not buttonCls:IsValid() then
+        print("[ModMenu] [uiInject] button class not loaded, click hook not registered\n")
+    else
+        -- the OnRelease function has to be found again because of the letter ù
+        local clickFn
+        buttonCls:ForEachFunction(function(fn)
+            local n = fn:GetFName():ToString()
+            if n:find("BndEvt", 1, true) and n:find("OnButtonReleasedEvent", 1, true) then
+                clickFn = n
             end
         end)
+
+        if not clickFn then
+            print("[ModMenu] [uiInject] [clickingStuff] OnRelease function could not be found\n")
+        else
+            -- find the full assetpath and then register a hook to it + the OnRelease function name (I know this is bad but it works)
+            local assetPath = buttonCls:GetFullName():match("%S+%s+(.+)")
+            RegisterHook(assetPath .. ":" .. clickFn, function(ctx)
+                local self = ctx:get()
+                if not self or not self:IsValid() then
+                    return
+                end
+                if not myButtons[self:GetFullName()] then
+                    return
+                end
+
+                -- function stuff goes here (probably just call a function to enable bp menu)
+                BP.Canvas_ToggleVisibility()
+            end)
+        end
     end
 end
+
+-- wait to register the hooks because otherwise it will try to register a hook that doesn't exist and throw
+local done = false
+RegisterHook("/Script/Engine.PlayerController:ClientRestart", function()
+    if done then return end
+    done = true
+    registerHooks()
+end)
 
 return uiInject
