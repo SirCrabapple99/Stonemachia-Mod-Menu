@@ -163,7 +163,7 @@ local function registerHooks()
 
         if not button or not button:IsValid() then
             local slot
-            slot, button = uiInject.injectButtonVertical(menu, "BResume", 4)
+            slot, button = uiInject.injectButtonVertical(menu, "BContinue", 4)
             if not slot or not button then
                 print("[ModMenu] [uiInject] [mainMenuHook] injection failed\n")
                 return
