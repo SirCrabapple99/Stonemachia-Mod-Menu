@@ -31,11 +31,9 @@ RegisterCustomEvent("ModMenuSpawn", function(self)
         MainPage = m
         print("[ModMenu] MainPage registered\n")
     end
-end)
 
--- get PausePage ref on construction
-RegisterHook("/Game/Widget/PauseMenù/Pages/WBP_PauseMenùVoices.WBP_PauseMenùVoices_C:Construct", function(ctx)
-    local v = ctx:get()
+    -- find PauseMenuVoices (pause menu)
+    local v = FindFirstOf("WBP_PauseMenùVoices_C")
     if v and v:IsValid() then
         PausePage = v
         print("[ModMenu] PausePage registered\n")
