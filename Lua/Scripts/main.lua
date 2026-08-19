@@ -6,6 +6,5 @@ modstxt_parser.validate_mod_entries(scraped_mods)
 if DEBUG then require("cli")(scraped_mods) end
 
 local uiInject = require("uiInject")
-local uiDebug = require("uiDebug")
 
-local modsMenu = require("modsMenu")
+local modsMenu = require("blueprintBridge")

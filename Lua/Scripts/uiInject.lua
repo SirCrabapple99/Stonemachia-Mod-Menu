@@ -1,6 +1,10 @@
+-- this file serves to inject the "Mods" button into the main menu and pause menu.
+-- it probably will never need to be touched again.
+-- to change button function go to line 221
+
 local bpLib = StaticFindObject("/Script/UMG.Default__WidgetBlueprintLibrary")
 
-local BP = require("bpInterface")
+local BP = require("blueprintBridge")
 
 local uiInject = {}
 
@@ -122,18 +126,15 @@ local function registerHooks()
 
         if not button or not button:IsValid() then
             local slot
-            slot, button = uiInject.injectButtonVertical(menu, "BResume", 8)
+            slot, button = uiInject.injectButtonVertical(menu, "BSettings", 8)
+
             if not slot or not button then
                 print("[ModMenu] [uiInject] [pauseMenuHook] injection failed\n")
                 return
             end
 
-            slot:SetPadding({
-                Left = 0,
-                Top = 4,
-                Right = 0,
-                Bottom = 4
-            })
+            -- add padding at bottom so it doesn't look weird
+            slot:SetPadding({ Left = 0, Top = 0, Right = 0, Bottom = 10 })
 
             -- add button to injected and also to the list of buttons for clicking
             injected[id] = button
@@ -157,23 +158,18 @@ local function registerHooks()
             print("[ModMenu] [uiInject] [mainMenuHook] menu returned nil")
         end
 
-        -- guard against creating a second button
         local id = menu:GetFullName()
         local button = injected[id]
 
         if not button or not button:IsValid() then
             local slot
-            slot, button = uiInject.injectButtonVertical(menu, "BContinue", 4)
+            slot, button = uiInject.injectButtonVertical(menu, "BSettings", 7)
             if not slot or not button then
                 print("[ModMenu] [uiInject] [mainMenuHook] injection failed\n")
                 return
             end
-            slot:SetPadding({
-                Left = 0,
-                Top = 4,
-                Right = 0,
-                Bottom = 4
-            })
+
+            slot:SetPadding({ Left = 0, Top = 0, Right = 0, Bottom = 10 })
 
             -- add button to injected and also to the list of buttons for clicking
             injected[id] = button
@@ -231,7 +227,9 @@ end
 -- wait to register the hooks because otherwise it will try to register a hook that doesn't exist and throw
 local done = false
 RegisterHook("/Script/Engine.PlayerController:ClientRestart", function()
-    if done then return end
+    if done then
+        return
+    end
     done = true
     registerHooks()
 end)
