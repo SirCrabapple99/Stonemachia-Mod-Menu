@@ -7,4 +7,5 @@ if DEBUG then require("cli")(scraped_mods) end
 
 local uiInject = require("uiInject")
 
-local modsMenu = require("blueprintBridge")
+local BP = require("blueprintBridge")
+require("blueprintFunctions")

@@ -1,7 +1,6 @@
--- this file serves to inject the "Mods" button into the main menu and pause menu.
--- it probably will never need to be touched again.
--- to change button function go to line 221
-
+-- this file serves to inject the "Mods" button into the main menu and pause menu
+-- it probably will never need to be touched again
+-- to change button function go to line 230
 local bpLib = StaticFindObject("/Script/UMG.Default__WidgetBlueprintLibrary")
 
 local BP = require("blueprintBridge")
@@ -126,7 +125,7 @@ local function registerHooks()
 
         if not button or not button:IsValid() then
             local slot
-            slot, button = uiInject.injectButtonVertical(menu, "BSettings", 8)
+            slot, button = uiInject.injectButtonVertical(menu, "BSettings", 9)
 
             if not slot or not button then
                 print("[ModMenu] [uiInject] [pauseMenuHook] injection failed\n")
@@ -134,7 +133,12 @@ local function registerHooks()
             end
 
             -- add padding at bottom so it doesn't look weird
-            slot:SetPadding({ Left = 0, Top = 0, Right = 0, Bottom = 10 })
+            slot:SetPadding({
+                Left = 0,
+                Top = 0,
+                Right = 0,
+                Bottom = 10
+            })
 
             -- add button to injected and also to the list of buttons for clicking
             injected[id] = button
@@ -169,7 +173,12 @@ local function registerHooks()
                 return
             end
 
-            slot:SetPadding({ Left = 0, Top = 0, Right = 0, Bottom = 10 })
+            slot:SetPadding({
+                Left = 0,
+                Top = 0,
+                Right = 0,
+                Bottom = 10
+            })
 
             -- add button to injected and also to the list of buttons for clicking
             injected[id] = button
