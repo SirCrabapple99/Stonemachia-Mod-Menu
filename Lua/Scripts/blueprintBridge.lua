@@ -132,5 +132,13 @@ RegisterKeyBind(Key.Y, function()
     print(refName())
 end)
 
+RegisterCustomEvent("UpTest", function(self)
+    print("[ModMenu] Up Navigation Success")
+end)
+
+RegisterCustomEvent("CustomEvent", function(self)
+    print("[ModMenu] Button B Pressed")
+end)
+
 return BP
 
